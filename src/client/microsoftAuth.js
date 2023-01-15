@@ -15,13 +15,11 @@ function validateOptions (options) {
   }
 }
 
-  client.authflow = new PrismarineAuth(options.username, options.profilesFolder, options, options.onMsaCode)
-  const { token, entitlements, profile, certificates } = await client.authflow.getMinecraftJavaToken({ fetchProfile: true, fetchCertificates: !options.disableChatSigning }).catch(e => {
 async function authenticate (client, options) {
   validateOptions(options)
 
-  const Authflow = options.authflow ?? new PrismarineAuth(options.username, options.profilesFolder, options, options.onMsaCode)
-  const { token, entitlements, profile, certificates } = await Authflow.getMinecraftJavaToken({ fetchProfile: true, fetchCertificates: !options.disableChatSigning }).catch(e => {
+  client.authflow = new PrismarineAuth(options.username, options.profilesFolder, options, options.onMsaCode)
+  const { token, entitlements, profile, certificates } = await client.authflow.getMinecraftJavaToken({ fetchProfile: true, fetchCertificates: !options.disableChatSigning }).catch(e => {
     if (options.password) console.warn('Sign in failed, try removing the password field\n')
     if (e.toString().includes('Not Found')) console.warn(`Please verify that the account ${options.username} owns Minecraft\n`)
     throw e
@@ -48,12 +46,12 @@ async function authenticate (client, options) {
   options.connect(client)
 }
 
-async function realmAuthenticate (options) {
+async function realmAuthenticate (client, options) {
   validateOptions(options)
 
-  options.authflow = new PrismarineAuth(options.username, options.profilesFolder, options, options.onMsaCode)
+  client.authflow = new PrismarineAuth(options.username, options.profilesFolder, options, options.onMsaCode)
 
-  const api = RealmAPI.from(options.authflow, 'java')
+  const api = RealmAPI.from(client.authflow, 'java')
   const realms = await api.getRealms()
 
   debug('realms', realms)
